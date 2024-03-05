@@ -1,0 +1,5 @@
+{
+    "name": "@geacko/pipe",
+    "version": "1.0.0",
+    "exports": "./mod.ts"
+}
