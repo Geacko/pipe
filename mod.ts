@@ -1,7 +1,7 @@
 // Copyright 2022 Grégoire Jacquot. All rights reserved. MIT license.
 
 export {
-    flat, concat, create
+    create
 } from './src/pipe.ts'
 
 export type {
