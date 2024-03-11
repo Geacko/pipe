@@ -12,12 +12,10 @@ export type Use<I, O = I> = (
 
 export type UseOrIterable<I, O = I> = Use<I,O> | Iterable<UseOrIterable<I,O> | Use<I,O>>
 
-/** @internal */
 function isIterable<I,O>( x : UseOrIterable<I,O> ) : x is Iterable<UseOrIterable<I,O>> {
     return Symbol.iterator in x
 }
 
-/** @internal */
 function collect<I,O>(
     tree : UseOrIterable<I,O> , uses : Use<I,O>[]
 ) {
@@ -30,11 +28,7 @@ function collect<I,O>(
 
 }
 
-/**
- *  Concat a Tree of Middelwares into a 
- *  array of Middlewares
- */
-export function flat<I, O = I>(
+function flat<I, O = I>(
     tree : Iterable<UseOrIterable<I,O>>
 ) : Use<I,O>[] {
 
@@ -48,43 +42,6 @@ export function flat<I, O = I>(
     )
 
     return uses
-
-}
-
-/**
- *  Concat a Tree of Middelwares into 
- *  one middleware
- */
-export function concat<I, O = I>(
-    tree : Iterable<UseOrIterable<I,O>>
-) : Use<I,O> | undefined {
-
-    const uses : Use<I,O>[] = [
-        // ...
-    ]
-
-    collect( 
-        tree, 
-        uses,
-    )
-
-    const count = uses.length 
-
-    if (count <= 1) {
-        return uses[0]
-    }
-
-    return ( e , exec ) => {
-        
-        let i = -1
-        
-        const next : Executable<I,O> = ( x ) => {
-            return ++i < count ? uses[i]!( x , next ) : exec( x )
-        }
-        
-        return next( e )
-
-    }
 
 }
 
@@ -123,10 +80,6 @@ export function create<I, O = I>(
     exec : Executable<I,O> , ... uses : UseOrIterable<I,O>[]
 ) : Executable<I,O> {
 
-    const next 
-        = concat( uses )
-
-    return next ? ( e ) => next( e , exec ) 
-         : exec
+    return flat(uses).reverse().reduce((next: Executable<I, O>, use) => x => use(x, next), exec)
 
 }
